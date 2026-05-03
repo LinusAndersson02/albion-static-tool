@@ -38,6 +38,6 @@ internal static class ExtractorUtilities
 
     public static string GetBinFilePath(string mainGameFolder)
     {
-        return Path.Combine(mainGameFolder, ".\\Albion-Online_Data\\StreamingAssets\\GameData");
+        return Path.Combine(mainGameFolder, "Albion-Online_Data", "StreamingAssets", "GameData");
     }
 }

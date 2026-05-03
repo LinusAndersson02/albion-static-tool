@@ -14,12 +14,10 @@ internal static class BinaryDecrypter
         var fileBuffer = new byte[inputFile.Length];
         _ = await inputFile.ReadAsync(fileBuffer, 0, fileBuffer.Length);
 
-        var tDes = new DESCryptoServiceProvider
-        {
-            IV = Iv,
-            Mode = CipherMode.CBC,
-            Key = Key
-        };
+        using var tDes = DES.Create();
+        tDes.IV = Iv;
+        tDes.Mode = CipherMode.CBC;
+        tDes.Key = Key;
         var outBuffer = tDes.CreateDecryptor().TransformFinalBlock(fileBuffer, 0, fileBuffer.Length);
 
         const int size = 4096;
@@ -39,12 +37,10 @@ internal static class BinaryDecrypter
         var fileBuffer = new byte[inputFile.Length];
         int bytesRead = await inputFile.ReadAsync(fileBuffer, 0, fileBuffer.Length);
 
-        var tDes = new DESCryptoServiceProvider
-        {
-            IV = Iv,
-            Mode = CipherMode.CBC,
-            Key = Key
-        };
+        using var tDes = DES.Create();
+        tDes.IV = Iv;
+        tDes.Mode = CipherMode.CBC;
+        tDes.Key = Key;
         var outBuffer = tDes.CreateDecryptor().TransformFinalBlock(fileBuffer, 0, bytesRead);
 
         const int size = 4096;
@@ -52,13 +48,14 @@ internal static class BinaryDecrypter
         int decompressedBytesRead;
 
         await using GZipStream decompression = new GZipStream(new MemoryStream(outBuffer), CompressionMode.Decompress);
-        await using MemoryStream outputMemoryStream = new MemoryStream();
+        var outputMemoryStream = new MemoryStream();
 
         while ((decompressedBytesRead = await decompression.ReadAsync(buffer, 0, buffer.Length)) > 0)
         {
             await outputMemoryStream.WriteAsync(buffer, 0, decompressedBytesRead);
         }
 
+        outputMemoryStream.Position = 0;
         return outputMemoryStream;
     }
 }

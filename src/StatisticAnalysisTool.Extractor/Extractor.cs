@@ -2,15 +2,14 @@
 
 namespace StatisticAnalysisTool.Extractor;
 
-public class Extractor
+public class Extractor : IDisposable
 {
     private readonly LocalizationData _localizationData = new();
     private readonly string _mainGameServerFolderString;
 
     public Extractor(string mainGameFolder, ServerType serverType)
     {
-        string mainGameFolderString = Path.Combine(mainGameFolder, GetServerTypeString(serverType));
-        _mainGameServerFolderString = mainGameFolderString.Replace("'", "");
+        _mainGameServerFolderString = ResolveMainGameServerFolder(mainGameFolder, serverType).Replace("'", "");
     }
 
     private async Task LoadLocationDataAsync()
@@ -59,7 +58,7 @@ public class Extractor
     {
         try
         {
-            string mainGameFolderPath = Path.Combine(mainGameFolder, GetServerTypeString(serverType));
+            string mainGameFolderPath = ResolveMainGameServerFolder(mainGameFolder, serverType);
             var binFilePath = Path.Combine(ExtractorUtilities.GetBinFilePath(mainGameFolderPath), $"{binFileName}.bin");
 
             if (!File.Exists(binFilePath))
@@ -95,7 +94,7 @@ public class Extractor
 
     public static bool IsValidMainGameFolder(string mainGameFolder, ServerType serverType)
     {
-        string mainGameFolderPath = Path.Combine(mainGameFolder, GetServerTypeString(serverType));
+        string mainGameFolderPath = ResolveMainGameServerFolder(mainGameFolder, serverType);
 
         var itemsBinFilePath = Path.Combine(ExtractorUtilities.GetBinFilePath(mainGameFolderPath), "items.bin");
         var mobsBinFilePath = Path.Combine(ExtractorUtilities.GetBinFilePath(mainGameFolderPath), "mobs.bin");
@@ -108,6 +107,22 @@ public class Extractor
                && File.Exists(spellsBinFilePath)
                && File.Exists(mistsBinFilePath)
                && File.Exists(worldBinFilePath);
+    }
+
+    private static string ResolveMainGameServerFolder(string mainGameFolder, ServerType serverType)
+    {
+        var serverFolderName = GetServerTypeString(serverType);
+        var candidates = new[]
+        {
+            Path.Combine(mainGameFolder, serverFolderName),
+            mainGameFolder,
+            Path.Combine(mainGameFolder, "game_x64"),
+            Path.Combine(mainGameFolder, "game"),
+            Path.Combine(mainGameFolder, "launcher", serverFolderName)
+        };
+
+        return candidates.FirstOrDefault(path => Directory.Exists(Path.Combine(path, "Albion-Online_Data")))
+            ?? mainGameFolder;
     }
 
     public void Dispose()

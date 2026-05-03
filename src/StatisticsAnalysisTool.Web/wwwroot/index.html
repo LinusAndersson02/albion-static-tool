@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Albion Statistics Linux</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">Albion Statistics</div>
+    <button class="nav active" data-view="dashboard">Dashboard</button>
+    <button class="nav" data-view="party">Party</button>
+    <button class="nav" data-view="dps">DPS</button>
+    <button class="nav" data-view="timeline">Timeline</button>
+    <button class="nav" data-view="loot">Loot</button>
+    <button class="nav" data-view="rates">Rates</button>
+    <button class="nav" data-view="settings">Settings</button>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <div class="eyebrow" id="statusLine">Loading...</div>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="actions">
+        <button id="startCapture">Start</button>
+        <button id="stopCapture">Stop</button>
+      </div>
+    </header>
+
+    <section id="dashboard" class="view active">
+      <div class="metrics">
+        <div class="metric"><span>Capture</span><strong id="captureState">-</strong></div>
+        <div class="metric"><span>Packets</span><strong id="packetCount">0</strong></div>
+        <div class="metric"><span>Photon</span><strong id="photonCount">0</strong></div>
+        <div class="metric"><span>Items</span><strong id="itemCount">0</strong></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Devices</h2>
+          <span class="hint">Checkbox changes save immediately.</span>
+        </div>
+        <div id="devices"></div>
+      </div>
+    </section>
+
+    <section id="party" class="view">
+      <div class="metrics">
+        <div class="metric"><span>Members</span><strong id="partySize">0</strong></div>
+        <div class="metric"><span>Average IP</span><strong id="partyAverageIp">-</strong></div>
+        <div class="metric"><span>Known gear</span><strong id="partyKnownGear">0</strong></div>
+      </div>
+      <div class="party-grid" id="partyGrid"></div>
+    </section>
+
+    <section id="dps" class="view">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Party DPS</h2>
+          <button id="resetDps">Reset</button>
+        </div>
+        <table>
+          <thead><tr><th>Member</th><th>Damage</th><th>Share</th><th>DPS</th><th>Taken</th><th>Hits</th></tr></thead>
+          <tbody id="dpsRows"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Healing</h2>
+          <span class="hint">Sorted by healing done.</span>
+        </div>
+        <table>
+          <thead><tr><th>Member</th><th>Healing</th><th>HPS</th><th>Share</th></tr></thead>
+          <tbody id="healingRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="timeline" class="view">
+      <div class="metrics">
+        <div class="metric"><span>Latest silver</span><strong id="timelineLatestSilver">-</strong></div>
+        <div class="metric"><span>Split silver</span><strong id="timelineSplitSilver">0</strong></div>
+        <div class="metric"><span>Split loot value</span><strong id="timelineSplitLootValue">0</strong></div>
+        <div class="metric"><span>Active players</span><strong id="timelineActivePlayers">0</strong></div>
+      </div>
+      <div class="timeline-layout">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Silver Checkpoint</h2>
+            <button id="resetTimeline">Reset</button>
+          </div>
+          <div class="silver-form">
+            <input id="silverCheckpoint" inputmode="numeric" placeholder="Current party silver">
+            <input id="silverNote" placeholder="Note">
+            <button id="addSilverCheckpoint">Add</button>
+          </div>
+          <div id="lootSplitShares" class="split-list"></div>
+          <h2 class="subhead">Estimated Loot Value</h2>
+          <div id="lootValueSplitShares" class="split-list"></div>
+        </div>
+        <div class="panel">
+          <h2>Session Timeline</h2>
+          <div id="timelineEvents" class="timeline-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="loot" class="view">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Item Loot</h2>
+          <div>
+            <button id="resetLoot">Reset</button>
+          </div>
+        </div>
+        <div class="loot-summary" id="lootSummary"></div>
+        <div id="lootGrid" class="loot-grid"></div>
+        <div id="lootDetail" class="loot-detail empty">Select a loot item to inspect it.</div>
+      </div>
+    </section>
+
+    <section id="rates" class="view">
+      <div class="panel">
+        <h2>Rates</h2>
+        <div class="rates" id="rateGrid"></div>
+      </div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="panel settings">
+        <h2>Settings</h2>
+        <label>Server location <input id="serverLocation"></label>
+        <label>Packet filter <input id="packetFilter"></label>
+        <label>Selected device ids <input id="selectedDevices"></label>
+        <label>Albion folder <input id="mainGameFolderPath"></label>
+        <button id="detectAlbionFolder" type="button">Auto detect Albion folder</button>
+        <label>Game data directory <input id="gameDataDirectory"></label>
+        <label>Game data language <input id="gameDataLanguage"></label>
+        <label>Local player name <input id="localPlayerName"></label>
+        <button id="saveSettings">Save settings</button>
+        <p class="hint">Game data reloads when settings are saved. If item names remain missing, verify the Albion folder contains game_x64/Albion-Online_Data.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

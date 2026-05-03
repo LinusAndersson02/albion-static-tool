@@ -57,7 +57,7 @@ https://npcap.com/ (Normally the latest version should work!)
 
 ❌ Windows XP, Vista, 7 and 8 are not supported!
 
-❌ Linux is currently not supported!
+❌ Linux is currently not supported! See [Linux support migration](docs/linux-support.md) for the native Linux porting plan.
 
 ❌ Mac is currently not supported!
 
