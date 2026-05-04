@@ -1,11 +1,20 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Http.Json;
 using Serilog;
 using StatisticAnalysisTool.Extractor.Enums;
 using StatisticsAnalysisTool.Capture;
 using StatisticsAnalysisTool.Linux.Core;
 using StatisticsAnalysisTool.Network;
-using StatisticsAnalysisTool.Tui;
+using StatisticsAnalysisTool.Linux.Runtime;
+
+if (!LinuxPlatformInfo.IsRoot())
+{
+    Console.Error.WriteLine("Statistics Analysis Tool Web UI must be started with sudo so libpcap can capture Albion packets.");
+    Console.Error.WriteLine("Run it again with: sudo dotnet run --project src/StatisticsAnalysisTool.Web/StatisticsAnalysisTool.Web.csproj");
+    return 1;
+}
 
 var paths = new LinuxAppPaths();
 paths.EnsureRuntimeDirectories();
@@ -65,6 +74,7 @@ app.MapGet("/api/dps", (RuntimeState state) =>
         snapshot.LastCombatEventAt,
         snapshot.TotalDamage,
         snapshot.TotalHeal,
+        snapshot.TotalOverheal,
         snapshot.TotalTakenDamage,
         Entries = snapshot.Entries.Select(entry => new
         {
@@ -75,6 +85,7 @@ app.MapGet("/api/dps", (RuntimeState state) =>
             entry.Dps,
             entry.Heal,
             entry.Hps,
+            entry.Overheal,
             entry.TakenDamage,
             entry.HitCount,
             entry.FirstSeenAt,
@@ -93,6 +104,8 @@ app.MapPost("/api/timeline/silver", (RuntimeState state, SilverCheckpointRequest
 app.MapGet("/api/loot", (RuntimeState state) => state.LootLog.GetSnapshot(40));
 app.MapGet("/api/rates", (RuntimeState state) => state.ActivityRates.GetSnapshot());
 app.MapGet("/api/parser", (RuntimeState state) => state.ParserStats.GetSnapshot());
+app.MapGet("/api/item-images/{uniqueName}.png", async (RuntimeState state, string uniqueName, CancellationToken cancellationToken) =>
+    await state.ItemImages.GetAsync(uniqueName, cancellationToken).ConfigureAwait(false));
 app.MapGet("/api/game-data", (RuntimeState state) => new
 {
     state.GameData.ItemCount,
@@ -182,6 +195,7 @@ internal sealed class RuntimeState
         EstimatedItemValues = new EstimatedItemValueService();
         ActivityRates = new ActivityRatesService();
         LootHtmlReportWriter = new LootHtmlReportWriter(_paths);
+        ItemImages = new ItemImageCacheService(_paths);
 
         var receiverBuilder = ReceiverBuilder.Create();
         ParserStats.RegisterHandlers(receiverBuilder);
@@ -202,6 +216,7 @@ internal sealed class RuntimeState
     public LootLogService LootLog { get; }
     public EstimatedItemValueService EstimatedItemValues { get; }
     public ActivityRatesService ActivityRates { get; }
+    public ItemImageCacheService ItemImages { get; }
     public GameDataIndex GameData { get; }
     public EntityNameService EntityNames { get; }
     public PartyService Party { get; }
@@ -266,6 +281,74 @@ internal sealed class RuntimeState
     public LiveCaptureStatus StopCapture()
     {
         return LiveCapture.Stop();
+    }
+}
+
+internal sealed class ItemImageCacheService
+{
+    private static readonly HttpClient Http = new()
+    {
+        Timeout = TimeSpan.FromSeconds(15)
+    };
+
+    private readonly string _imageDirectory;
+
+    public ItemImageCacheService(LinuxAppPaths paths)
+    {
+        _imageDirectory = Path.Combine(paths.GameFilesDirectory, "ItemImages");
+    }
+
+    public async Task<IResult> GetAsync(string uniqueName, CancellationToken cancellationToken)
+    {
+        uniqueName = Uri.UnescapeDataString(uniqueName).Trim();
+        if (!IsValidUniqueName(uniqueName))
+        {
+            return Results.BadRequest();
+        }
+
+        Directory.CreateDirectory(_imageDirectory);
+        var path = Path.Combine(_imageDirectory, GetCacheFileName(uniqueName));
+        if (File.Exists(path))
+        {
+            return Results.File(path, "image/png");
+        }
+
+        try
+        {
+            var source = $"https://render.albiononline.com/v1/item/{Uri.EscapeDataString(uniqueName)}.png";
+            using var response = await Http.GetAsync(source, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                return Results.NotFound();
+            }
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
+            if (bytes.Length == 0)
+            {
+                return Results.NotFound();
+            }
+
+            var tempPath = path + ".tmp";
+            await File.WriteAllBytesAsync(tempPath, bytes, cancellationToken).ConfigureAwait(false);
+            File.Move(tempPath, path, overwrite: true);
+            return Results.File(path, "image/png");
+        }
+        catch
+        {
+            return Results.NotFound();
+        }
+    }
+
+    private static string GetCacheFileName(string uniqueName)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(uniqueName.ToUpperInvariant()));
+        return $"{Convert.ToHexString(hash)}.png";
+    }
+
+    private static bool IsValidUniqueName(string uniqueName)
+    {
+        return uniqueName.Length is > 0 and <= 160
+            && uniqueName.All(x => char.IsLetterOrDigit(x) || x is '_' or '-' or '@' or '.');
     }
 }
 

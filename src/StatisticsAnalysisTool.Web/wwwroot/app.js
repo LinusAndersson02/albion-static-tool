@@ -12,7 +12,7 @@ document.querySelectorAll(".nav").forEach((button) => {
     state.currentView = button.dataset.view;
     document.querySelectorAll(".nav").forEach((x) => x.classList.toggle("active", x === button));
     document.querySelectorAll(".view").forEach((x) => x.classList.toggle("active", x.id === state.currentView));
-    $("pageTitle").textContent = button.textContent;
+    $("pageTitle").textContent = button.dataset.title || button.textContent.trim();
   });
 });
 
@@ -117,7 +117,7 @@ async function refreshAll() {
 async function addSilverCheckpoint() {
   const silver = Number($("silverCheckpoint").value.replace(/[^\d]/g, ""));
   if (!Number.isFinite(silver) || silver < 0) {
-    $("statusLine").textContent = "Enter a valid current silver amount.";
+    $("statusLine").textContent = "Enter a valid silver amount.";
     return;
   }
 
@@ -167,9 +167,7 @@ function renderEquipmentGrid(equipment) {
 }
 
 function renderEquipmentSlot(slot, slotName) {
-  const image = slot?.renderUrl || (slot?.itemUniqueName
-    ? `https://render.albiononline.com/v1/item/${encodeURIComponent(slot.itemUniqueName)}.png`
-    : "");
+  const image = itemImageUrl(slot?.itemUniqueName, slot?.renderUrl);
   const itemName = slot?.itemName || "Empty";
   return `<div class="gear-slot ${slot ? "" : "missing"}" title="${escapeHtml(`${slotName}: ${itemName}`)}">
     <div class="gear-icon">${image ? `<img src="${image}" alt="">` : `<span>${escapeHtml(slotName[0])}</span>`}</div>
@@ -180,12 +178,15 @@ function renderEquipmentSlot(slot, slotName) {
 function renderStatus(status, capture, parser, gameData) {
   $("statusLine").textContent = `${status.operatingSystem} | ${status.capturePermissionStatus} | ${gameData.status}`;
   $("captureState").textContent = capture.isRunning ? "running" : "stopped";
+  $("captureState").classList.toggle("good", Boolean(capture.isRunning));
   $("packetCount").textContent = fmt.format(capture.capturedPacketCount ?? 0);
   $("photonCount").textContent = fmt.format(capture.photonPayloadCount ?? 0);
   $("itemCount").textContent = fmt.format(gameData.itemCount ?? 0);
 }
 
 function renderDevices(devices) {
+  const selectedCount = devices.filter((device) => device.isSelected).length;
+  $("deviceStatus").textContent = devices.length ? `${fmt.format(selectedCount)} / ${fmt.format(devices.length)} selected` : "none";
   $("devices").innerHTML = devices.length
     ? `<div class="device-list">${devices.map((d) => `<label class="device-row"><input type="checkbox" ${d.isSelected ? "checked" : ""} data-id="${escapeHtml(d.identifier)}"> <span>${escapeHtml(d.name)}</span><small>${escapeHtml(d.identifier)}</small></label>`).join("")}</div>`
     : `<p class="hint">No devices found or capture permissions are missing.</p>`;
@@ -228,7 +229,7 @@ function renderDps(snapshot) {
       <td>${escapeHtml(x.name || formatEntity(x.entityId))}</td>
       <td>${fmt.format(x.heal)}</td>
       <td>${number(x.hps, 1)}</td>
-      <td>${number(((x.heal ?? 0) / totalHeal) * 100, 1)}%</td>
+      <td>${number(((x.heal ?? 0) / totalHeal) * 100, 1)}%${(x.overheal ?? 0) > 0 ? ` (${fmt.format(x.overheal)} overheal)` : ""}</td>
     </tr>`).join("")
     : `<tr><td colspan="4">No party healing observed yet.</td></tr>`;
 }
@@ -246,7 +247,7 @@ function renderTimeline(snapshot) {
       <span>${escapeHtml(share.playerName)}</span>
       <strong>${fmt.format(share.silver)}</strong>
     </div>`).join("")
-    : `<p class="hint">Add at least two silver checkpoints to calculate a split.</p>`;
+    : `<p class="hint">Add a silver amount to calculate a split.</p>`;
 
   const valueShares = snapshot.valueShares ?? [];
   $("lootValueSplitShares").innerHTML = valueShares.length
@@ -271,16 +272,15 @@ function renderLoot(snapshot) {
 
   $("lootGrid").innerHTML = entries.length
     ? entries.map((x, index) => {
-      const image = x.itemUniqueName
-        ? `https://render.albiononline.com/v1/item/${encodeURIComponent(x.itemUniqueName)}.png`
-        : "";
+      const image = itemImageUrl(x.itemUniqueName);
       const key = `${x.itemIndex}-${x.time}-${index}`;
       return `<article class="loot-card ${state.selectedLootKey === key ? "selected" : ""}" data-loot-key="${escapeHtml(key)}" data-loot-index="${index}">
         <div class="icon-frame">${image ? `<img src="${image}" alt="">` : `<span>?</span>`}</div>
         <div>
           <div class="loot-name">${escapeHtml(x.itemName)}</div>
           <div class="loot-sub">${escapeHtml(x.itemUniqueName || `item #${x.itemIndex}`)}</div>
-          <div class="loot-sub">${escapeHtml(x.sourceName || "unknown source")}</div>
+          ${(x.quality ?? 0) > 0 ? `<div class="loot-sub">Quality ${fmt.format(x.quality)}</div>` : ""}
+          <div class="loot-sub">${escapeHtml(x.sourceName || "unknown source")}${x.looterName ? ` -> ${escapeHtml(x.looterName)}` : ""}</div>
           <div><span class="qty-pill">${fmt.format(x.quantity)}</span> <span class="loot-sub">${new Date(x.time).toLocaleTimeString()}</span></div>
         </div>
       </article>`;
@@ -318,9 +318,7 @@ function renderLootDetail(item) {
     return;
   }
 
-  const image = item.itemUniqueName
-    ? `https://render.albiononline.com/v1/item/${encodeURIComponent(item.itemUniqueName)}.png`
-    : "";
+  const image = itemImageUrl(item.itemUniqueName);
   $("lootDetail").className = "loot-detail";
   $("lootDetail").innerHTML = `
     <div class="icon-frame large">${image ? `<img src="${image}" alt="">` : `<span>?</span>`}</div>
@@ -328,8 +326,10 @@ function renderLootDetail(item) {
       <h3>${escapeHtml(item.itemName)}</h3>
       <p>${escapeHtml(item.itemUniqueName || `item #${item.itemIndex}`)}</p>
       <p>Quantity: <strong>${fmt.format(item.quantity)}</strong></p>
+      ${(item.quality ?? 0) > 0 ? `<p>Quality: <strong>${fmt.format(item.quality)}</strong></p>` : ""}
       <p>Estimated value: <strong>${fmt.format(item.estimatedTotalValue ?? 0)}</strong></p>
       <p>Source: ${escapeHtml(item.sourceName || "unknown source")}</p>
+      <p>Looter: ${escapeHtml(item.looterName || "unknown looter")}</p>
       <p>Time: ${new Date(item.time).toLocaleString()}</p>
     </div>
   `;
@@ -351,7 +351,9 @@ function renderRates(rates) {
     ["Silver", rates.silver, rates.silverPerHour],
     ["Fame", rates.fame, rates.famePerHour],
     ["ReSpec", rates.reSpecPoints, rates.reSpecPointsPerHour],
+    ["ReSpec silver", rates.paidSilverForReSpec, rates.paidSilverForReSpecPerHour],
     ["Faction points", rates.factionPoints, rates.factionPointsPerHour],
+    ["Faction standing", rates.factionStanding, rates.factionStandingPerHour],
     ["Might", rates.might, rates.mightPerHour],
     ["Favor", rates.favor, rates.favorPerHour],
   ];
@@ -370,6 +372,14 @@ function fillSettings(settings) {
 
 function formatEntity(id) {
   return id ? `entity ${id}` : "unknown";
+}
+
+function itemImageUrl(uniqueName, renderUrl = "") {
+  if (renderUrl) {
+    return renderUrl;
+  }
+
+  return uniqueName ? `/api/item-images/${encodeURIComponent(uniqueName)}.png` : "";
 }
 
 function number(value, digits) {

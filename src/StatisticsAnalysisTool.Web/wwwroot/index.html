@@ -8,14 +8,19 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand">Albion Statistics</div>
-    <button class="nav active" data-view="dashboard">Dashboard</button>
-    <button class="nav" data-view="party">Party</button>
-    <button class="nav" data-view="dps">DPS</button>
-    <button class="nav" data-view="timeline">Timeline</button>
-    <button class="nav" data-view="loot">Loot</button>
-    <button class="nav" data-view="rates">Rates</button>
-    <button class="nav" data-view="settings">Settings</button>
+    <div class="brand">
+      <span class="brand-mark">A</span>
+      <span>Albion Statistics</span>
+    </div>
+    <nav class="nav-list" aria-label="Primary">
+      <button class="nav active" data-view="dashboard" data-title="Dashboard"><span class="nav-icon">◆</span><span>Dashboard</span></button>
+      <button class="nav" data-view="party" data-title="Party"><span class="nav-icon">◉</span><span>Party</span></button>
+      <button class="nav" data-view="dps" data-title="DPS"><span class="nav-icon">✦</span><span>DPS</span></button>
+      <button class="nav" data-view="timeline" data-title="Timeline"><span class="nav-icon">⌁</span><span>Timeline</span></button>
+      <button class="nav" data-view="loot" data-title="Loot"><span class="nav-icon">⬡</span><span>Loot</span></button>
+      <button class="nav" data-view="rates" data-title="Rates"><span class="nav-icon">↟</span><span>Rates</span></button>
+      <button class="nav" data-view="settings" data-title="Settings"><span class="nav-icon">⚙</span><span>Settings</span></button>
+    </nav>
   </aside>
 
   <main>
@@ -25,8 +30,8 @@
         <h1 id="pageTitle">Dashboard</h1>
       </div>
       <div class="actions">
-        <button id="startCapture">Start</button>
-        <button id="stopCapture">Stop</button>
+        <button id="startCapture" class="primary">Start</button>
+        <button id="stopCapture" class="danger">Stop</button>
       </div>
     </header>
 
@@ -40,7 +45,7 @@
       <div class="panel">
         <div class="panel-head">
           <h2>Devices</h2>
-          <span class="hint">Checkbox changes save immediately.</span>
+          <span class="status-pill" id="deviceStatus">-</span>
         </div>
         <div id="devices"></div>
       </div>
@@ -59,7 +64,7 @@
       <div class="panel">
         <div class="panel-head">
           <h2>Party DPS</h2>
-          <button id="resetDps">Reset</button>
+          <button id="resetDps" class="secondary">Reset</button>
         </div>
         <table>
           <thead><tr><th>Member</th><th>Damage</th><th>Share</th><th>DPS</th><th>Taken</th><th>Hits</th></tr></thead>
@@ -72,7 +77,7 @@
           <span class="hint">Sorted by healing done.</span>
         </div>
         <table>
-          <thead><tr><th>Member</th><th>Healing</th><th>HPS</th><th>Share</th></tr></thead>
+          <thead><tr><th>Member</th><th>Healing</th><th>HPS</th><th>Share / overheal</th></tr></thead>
           <tbody id="healingRows"></tbody>
         </table>
       </div>
@@ -80,7 +85,7 @@
 
     <section id="timeline" class="view">
       <div class="metrics">
-        <div class="metric"><span>Latest silver</span><strong id="timelineLatestSilver">-</strong></div>
+        <div class="metric"><span>Latest silver entry</span><strong id="timelineLatestSilver">-</strong></div>
         <div class="metric"><span>Split silver</span><strong id="timelineSplitSilver">0</strong></div>
         <div class="metric"><span>Split loot value</span><strong id="timelineSplitLootValue">0</strong></div>
         <div class="metric"><span>Active players</span><strong id="timelineActivePlayers">0</strong></div>
@@ -88,11 +93,11 @@
       <div class="timeline-layout">
         <div class="panel">
           <div class="panel-head">
-            <h2>Silver Checkpoint</h2>
-            <button id="resetTimeline">Reset</button>
+            <h2>Silver Loot</h2>
+            <button id="resetTimeline" class="secondary">Reset</button>
           </div>
           <div class="silver-form">
-            <input id="silverCheckpoint" inputmode="numeric" placeholder="Current party silver">
+            <input id="silverCheckpoint" inputmode="numeric" placeholder="Silver amount">
             <input id="silverNote" placeholder="Note">
             <button id="addSilverCheckpoint">Add</button>
           </div>
@@ -112,7 +117,7 @@
         <div class="panel-head">
           <h2>Item Loot</h2>
           <div>
-            <button id="resetLoot">Reset</button>
+            <button id="resetLoot" class="secondary">Reset</button>
           </div>
         </div>
         <div class="loot-summary" id="lootSummary"></div>
@@ -135,12 +140,11 @@
         <label>Packet filter <input id="packetFilter"></label>
         <label>Selected device ids <input id="selectedDevices"></label>
         <label>Albion folder <input id="mainGameFolderPath"></label>
-        <button id="detectAlbionFolder" type="button">Auto detect Albion folder</button>
+        <button id="detectAlbionFolder" class="secondary" type="button">Auto detect Albion folder</button>
         <label>Game data directory <input id="gameDataDirectory"></label>
         <label>Game data language <input id="gameDataLanguage"></label>
         <label>Local player name <input id="localPlayerName"></label>
-        <button id="saveSettings">Save settings</button>
-        <p class="hint">Game data reloads when settings are saved. If item names remain missing, verify the Albion folder contains game_x64/Albion-Online_Data.</p>
+        <button id="saveSettings" class="primary">Save settings</button>
       </div>
     </section>
   </main>

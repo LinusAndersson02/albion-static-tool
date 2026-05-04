@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Capt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Linux.Core", "StatisticsAnalysisTool.Linux.Core\StatisticsAnalysisTool.Linux.Core.csproj", "{A4CAB629-9020-4E46-8379-0AFB62906A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Tui", "StatisticsAnalysisTool.Tui\StatisticsAnalysisTool.Tui.csproj", "{B0E62B2A-F873-4353-816F-076A1AC16DCD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Linux.Tests", "StatisticsAnalysisTool.Linux.Tests\StatisticsAnalysisTool.Linux.Tests.csproj", "{10BF7EAD-D76E-4218-A999-FDD6FD8903B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Abstractions", "StatisticsAnalysisTool.Abstractions\StatisticsAnalysisTool.Abstractions.csproj", "{C8EC0FC2-39F9-4D80-9F4F-FD104A665405}"
@@ -24,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticAnalysisTool.Extractor", "StatisticAnalysisTool.Extractor\StatisticAnalysisTool.Extractor.csproj", "{B5C0279B-B973-4A54-8C21-C90B2E733100}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Web", "StatisticsAnalysisTool.Web\StatisticsAnalysisTool.Web.csproj", "{8B2AF7AE-0ABE-4A3A-AF22-8CDE9116C34A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatisticsAnalysisTool.Linux.Runtime", "StatisticsAnalysisTool.Linux.Runtime\StatisticsAnalysisTool.Linux.Runtime.csproj", "{DFDEE6A6-29C9-405F-B373-D645ECDB1914}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,18 +59,6 @@ Global
 		{A4CAB629-9020-4E46-8379-0AFB62906A9F}.Release|x64.Build.0 = Release|Any CPU
 		{A4CAB629-9020-4E46-8379-0AFB62906A9F}.Release|x86.ActiveCfg = Release|Any CPU
 		{A4CAB629-9020-4E46-8379-0AFB62906A9F}.Release|x86.Build.0 = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|x64.Build.0 = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Debug|x86.Build.0 = Debug|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|x64.ActiveCfg = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|x64.Build.0 = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|x86.ActiveCfg = Release|Any CPU
-		{B0E62B2A-F873-4353-816F-076A1AC16DCD}.Release|x86.Build.0 = Release|Any CPU
 		{10BF7EAD-D76E-4218-A999-FDD6FD8903B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{10BF7EAD-D76E-4218-A999-FDD6FD8903B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10BF7EAD-D76E-4218-A999-FDD6FD8903B0}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -167,6 +155,18 @@ Global
 		{8B2AF7AE-0ABE-4A3A-AF22-8CDE9116C34A}.Release|x64.Build.0 = Release|Any CPU
 		{8B2AF7AE-0ABE-4A3A-AF22-8CDE9116C34A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8B2AF7AE-0ABE-4A3A-AF22-8CDE9116C34A}.Release|x86.Build.0 = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|x64.Build.0 = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Debug|x86.Build.0 = Debug|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|x64.ActiveCfg = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|x64.Build.0 = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|x86.ActiveCfg = Release|Any CPU
+		{DFDEE6A6-29C9-405F-B373-D645ECDB1914}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

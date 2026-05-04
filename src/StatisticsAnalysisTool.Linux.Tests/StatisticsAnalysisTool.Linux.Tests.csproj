@@ -22,6 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StatisticsAnalysisTool.Linux.Core\StatisticsAnalysisTool.Linux.Core.csproj" />
+    <ProjectReference Include="..\StatisticsAnalysisTool.Network\StatisticsAnalysisTool.Network.csproj" />
+    <ProjectReference Include="..\StatisticsAnalysisTool.Linux.Runtime\StatisticsAnalysisTool.Linux.Runtime.csproj" />
   </ItemGroup>
 
 </Project>
